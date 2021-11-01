@@ -35,11 +35,11 @@ const Home = () => {
 		}
 	}
 
-	async function incorporar_tareas(temp) {
+	async function incorporar_tareas(valor) {
 		try {
 			const settings = {
 				method: "PUT",
-				body: JSON.stringify(temp),
+				body: JSON.stringify(valor),
 				headers: {
 					"Content-Type": "application/json"
 				}
@@ -60,6 +60,7 @@ const Home = () => {
 			const respuestas = await resp.json();
 			lista.innerHTML = "";
 			setTareas(0);
+			incorporar_usuarios();
 		} catch (error) {
 			console.warn("Ha ocurrido un error: ", error);
 		}
@@ -80,31 +81,28 @@ const Home = () => {
 
 	async function eliminar_tareas(num) {
 		try {
-			const response = await fetch(url);
-			const respuestas = await response.json();
-			setTodos(respuestas);
-			todos.splice(num, 1);
-			setTodos(todos);
-			if (todos.length == 0) {
-				setTodos();
-				lista.innerHTML = "";
-			}
-			incorporar_tareas();
-			lista.innerHTML = "";
+			let temp = await recolectar_tareas();
+			temp.splice(num, 1);
+			console.log(temp.length);
+			debugger;
 
-			if (todos.length == 0) {
-				setTareas(0);
+			if (temp.length == 0) {
+				alert("Debes mantener al menos una tarea");
 			} else {
-				for (let index = 0; index < todos.length; index++) {
+				let cargar = await incorporar_tareas(temp);
+				temp = await recolectar_tareas();
+				document.querySelector("ul").innerHTML = "";
+
+				for (let index = 0; index < temp.length; index++) {
 					let item = document.createElement("li");
 					item.className = "list-group-item";
 					item.value = index;
-					item.innerHTML = `<span><i class="fas fa-minus-circle"></i></span> ${todos[index].label}`;
+					item.innerHTML = `<span><i class="fas fa-minus-circle"></i></span> ${temp[index].label}`;
 					item.addEventListener("click", function() {
 						let elementoeliminar = this.value;
 						eliminar_tareas(elementoeliminar);
 					});
-					lista.appendChild(item);
+					document.querySelector("ul").appendChild(item);
 					setTareas(document.querySelectorAll("li").length);
 				}
 			}
@@ -150,7 +148,7 @@ const Home = () => {
 		<>
 			<div className="container">
 				<div className="card paper">
-					<div className="card-header display-4 d-flex justify-content-between">
+					<div className="card-header display-4 d-flex flex-wrap">
 						<input
 							type="text"
 							name="tarea"
@@ -171,11 +169,10 @@ const Home = () => {
 						Tareas por hacer: {tareas}
 					</div>
 					<div className="bugger"> </div>
-					<div className="bg-danger">
-						{" "}
-						ELIMINAR TODO
+					<div className="d-flex justify-content-end">
+						<h4>ELIMINAR TODO</h4>
 						<i
-							className="fas fa-trash-alt"
+							className="fas fa-trash-alt borrar"
 							type="button"
 							onClick={borrar_todo}></i>
 					</div>
