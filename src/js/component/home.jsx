@@ -16,7 +16,7 @@ const Home = () => {
 	const eliminar = document.querySelector("i");
 
 	useEffect(() => {
-		//incorporar_usuarios();
+		incorporar_usuarios();
 	}, []);
 
 	async function incorporar_usuarios() {
@@ -114,6 +114,7 @@ const Home = () => {
 	}
 
 	async function escribir(arr) {
+		document.querySelector("ul").innerHTML = "";
 		for (let i = 0; i < arr.length; i++) {
 			let item = document.createElement("li");
 			item.className = "list-group-item";
@@ -124,9 +125,9 @@ const Home = () => {
 				let elementoeliminar = this.value;
 				eliminar_tareas(elementoeliminar);
 			});
-			lista.appendChild(item);
+			document.querySelector("ul").appendChild(item);
 			setTareas(document.querySelectorAll("li").length);
-			document.querySelectorAll("input").value = "";
+			document.querySelector("input").value = "";
 		}
 	}
 
@@ -141,9 +142,8 @@ const Home = () => {
 		let grabar = await incorporar_tareas(temp);
 		temp = await recolectar_tareas();
 		//lista.innerHTML = " ";
-		console.log(temp);
-		debugger;
-		// let write = await escribir(temp);
+		temp = await Promise.all(temp);
+		let write = escribir(temp);
 	}
 
 	return (
@@ -174,7 +174,10 @@ const Home = () => {
 					<div className="bg-danger">
 						{" "}
 						ELIMINAR TODO
-						<i className="fas fa-trash-alt" type="button"></i>
+						<i
+							className="fas fa-trash-alt"
+							type="button"
+							onClick={borrar_todo}></i>
 					</div>
 				</div>
 			</div>
